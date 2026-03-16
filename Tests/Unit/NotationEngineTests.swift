@@ -90,10 +90,10 @@ final class NotationEngineTests: XCTestCase {
         engine.consume(MIDIEvent(note: 60, velocity: 100, isNoteOn: true))
         engine.consume(MIDIEvent(note: 60, velocity: 0, isNoteOn: true))
 
-        // velocity 0 with isNoteOn should NOT create active symbol (guard: velocity > 0)
-        // but it also won't trigger noteOff path since isNoteOn is true
-        // This tests the actual behavior of the engine
-        XCTAssertEqual(engine.state.activeSymbols.count, 1)
+        // Per MIDI spec, noteOn with velocity 0 is equivalent to noteOff.
+        // The engine correctly removes the note from active symbols.
+        XCTAssertTrue(engine.state.activeSymbols.isEmpty)
+        XCTAssertEqual(engine.state.recentSymbols.count, 1)
     }
 
     func testSymbolIDsAreUnique() {
