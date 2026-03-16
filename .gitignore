@@ -1,0 +1,28 @@
+# Swift
+.build/
+.swiftpm/
+*.xcuserdata
+xcuserdata/
+DerivedData/
+*.playground/timeline.xctimeline
+*.playground/playground.xcworkspace
+
+# .NET / Windows
+windows/bin/
+windows/obj/
+windows/**/bin/
+windows/**/obj/
+*.user
+*.suo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+out/

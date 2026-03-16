@@ -1,0 +1,72 @@
+name: FlowPiano CI
+
+# Only runs manually or on version tags - NOT on every push
+on:
+  workflow_dispatch:
+    inputs:
+      run_windows:
+        description: 'Also run Windows tests'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-tests:
+    name: macOS Swift Tests
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 15
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Resolve Swift packages
+        run: swift package resolve
+
+      - name: Build
+        run: swift build -Xswiftc -suppress-warnings
+
+      - name: Run Unit Tests
+        run: swift test --filter FlowPianoUnitTests
+
+      - name: Run Integration Tests
+        run: swift test --filter FlowPianoIntegrationTests
+
+      - name: Run UI Tests
+        run: swift test --filter FlowPianoUITests
+
+  windows-tests:
+    name: Windows .NET Tests
+    runs-on: windows-latest
+    if: github.event_name == 'push' || github.event.inputs.run_windows == 'true'
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore FlowPiano.Windows.sln
+
+      - name: Build
+        run: dotnet build FlowPiano.Windows.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test FlowPiano.Windows.sln --configuration Release --no-build --verbosity normal

@@ -72,7 +72,21 @@ let package = Package(
         ),
         .testTarget(
             name: "FlowPianoUnitTests",
-            dependencies: ["AudioEngine", "FlowPianoCore", "LayoutEngine", "MIDIEngine", "Persistence", "Settings", "VideoEngine", "VirtualAudioDriver", "VirtualCameraExtension"],
+            dependencies: [
+                "AudioEngine",
+                "Diagnostics",
+                "FlowPianoCore",
+                "LayoutEngine",
+                "MIDIEngine",
+                "NotationEngine",
+                "OverlayEngine",
+                "Persistence",
+                "Settings",
+                "StudioMonitor",
+                "VideoEngine",
+                "VirtualAudioDriver",
+                "VirtualCameraExtension"
+            ],
             path: "Tests/Unit"
         ),
         .testTarget(
