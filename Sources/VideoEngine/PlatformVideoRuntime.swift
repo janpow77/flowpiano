@@ -18,20 +18,23 @@ final class PlatformVideoRuntime {
             && capabilities.maxActiveCameras >= 2
             && assignment.pipCameraID != nil
 
-        let configuredSession: AVCaptureSession
-        if canUseMultiCam {
-            configuredSession = AVCaptureMultiCamSession()
-        } else {
-            configuredSession = AVCaptureSession()
+        let configuredSession = AVCaptureSession()
+        if !canUseMultiCam {
             configuredSession.sessionPreset = .high
         }
 
         let selectedIDs = [assignment.mainCameraID, canUseMultiCam ? assignment.pipCameraID : nil]
             .compactMap { $0 }
 
+        let discoverySession = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .externalUnknown],
+            mediaType: .video,
+            position: .unspecified
+        )
+
         for deviceID in selectedIDs {
             guard
-                let device = AVCaptureDevice.devices(for: .video).first(where: { $0.uniqueID == deviceID }),
+                let device = discoverySession.devices.first(where: { $0.uniqueID == deviceID }),
                 let input = try? AVCaptureDeviceInput(device: device),
                 configuredSession.canAddInput(input)
             else {
