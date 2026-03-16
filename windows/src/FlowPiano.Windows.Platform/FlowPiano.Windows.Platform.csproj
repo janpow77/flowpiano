@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <RootNamespace>FlowPiano.Windows.Platform</RootNamespace>
+    <AssemblyName>FlowPiano.Windows.Platform</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FlowPiano.Windows.Core\FlowPiano.Windows.Core.csproj" />
+  </ItemGroup>
+</Project>

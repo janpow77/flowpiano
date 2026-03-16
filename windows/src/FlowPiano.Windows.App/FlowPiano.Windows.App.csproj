@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>FlowPiano.Windows.App</RootNamespace>
+    <AssemblyName>FlowPiano.Windows.App</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FlowPiano.Windows.Core\FlowPiano.Windows.Core.csproj" />
+    <ProjectReference Include="..\FlowPiano.Windows.Platform\FlowPiano.Windows.Platform.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\Sources\AudioEngine\Resources\GeneralUser GS v1.471.sf2" Link="Resources\GeneralUser GS v1.471.sf2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\Sources\AudioEngine\Resources\GeneralUserGS-LICENSE.txt" Link="Resources\GeneralUserGS-LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

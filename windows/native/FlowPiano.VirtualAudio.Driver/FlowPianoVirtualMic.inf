@@ -1,0 +1,40 @@
+; FlowPiano virtual microphone driver scaffold
+; This file is a packaging placeholder aligned with the managed bridge/service names.
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=Media
+ClassGuid={4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider=%FlowPiano%
+CatalogFile=FlowPianoVirtualMic.cat
+DriverVer=03/15/2026,1.0.0.0
+
+[Manufacturer]
+%FlowPiano%=FlowPianoDevices,NTamd64
+
+[FlowPianoDevices.NTamd64]
+%FlowPianoVirtualMic.DeviceDesc%=FlowPianoVirtualMic_Install,Root\FlowPianoVirtualMic
+
+[FlowPianoVirtualMic_Install.NT]
+CopyFiles=FlowPianoVirtualMic.CopyFiles
+
+[FlowPianoVirtualMic.CopyFiles]
+FlowPianoVirtualMic.sys
+
+[FlowPianoVirtualMic_Install.NT.Services]
+AddService=FlowPianoVirtualMic,0x00000002,FlowPianoVirtualMic_ServiceInstall
+
+[FlowPianoVirtualMic_ServiceInstall]
+DisplayName=%FlowPianoVirtualMic.ServiceDesc%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\FlowPianoVirtualMic.sys
+
+[DestinationDirs]
+FlowPianoVirtualMic.CopyFiles=12
+
+[Strings]
+FlowPiano="FlowPiano"
+FlowPianoVirtualMic.DeviceDesc="FlowPiano Virtual Microphone"
+FlowPianoVirtualMic.ServiceDesc="FlowPiano Virtual Microphone Driver"

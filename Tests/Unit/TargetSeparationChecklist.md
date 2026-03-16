@@ -1,0 +1,2 @@
+- Public Output enthält keine lokalen Diagnoselayer
+- Studio Monitor enthält Notation und lokale Statusanzeigen

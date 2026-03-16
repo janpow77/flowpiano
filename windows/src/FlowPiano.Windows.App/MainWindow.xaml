@@ -1,0 +1,126 @@
+<Window x:Class="FlowPiano.Windows.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="FlowPiano Windows"
+        Width="1320"
+        Height="860"
+        MinWidth="1100"
+        MinHeight="760">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <Grid Margin="24">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Border Padding="20" CornerRadius="16" Background="#112B39">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel>
+            <TextBlock FontSize="30" FontWeight="Bold" Foreground="White" Text="FlowPiano Windows" />
+            <TextBlock Margin="0,6,0,0" Foreground="#D6E3EA" Text="Separate Windows shell with the same domain model, setup logic, and target separation rules." />
+            <TextBlock Margin="0,6,0,0" Foreground="#9FC1D0" Text="{Binding RuntimeMode}" />
+          </StackPanel>
+          <Border Grid.Column="1" Padding="14,8" CornerRadius="18" Background="#1E8E5A">
+            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Foreground="White" Text="{Binding ReadinessText}" />
+          </Border>
+        </Grid>
+      </Border>
+
+      <UniformGrid Grid.Row="1" Margin="0,20,0,0" Columns="7">
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding PlayPhraseCommand}" Content="Play C Major" />
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding RefreshHardwareCommand}" Content="Refresh Hardware" />
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding ToggleInternalPianoCommand}" Content="Toggle Internal Piano" />
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding SwapCamerasCommand}" Content="Swap Cameras" />
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding CycleRoutingCommand}" Content="Cycle Routing" />
+        <Button Margin="0,0,12,0" Padding="12,8" Command="{Binding ToggleVirtualDevicesCommand}" Content="Refresh Virtual Bridges" />
+        <Button Padding="12,8" Command="{Binding SaveSettingsCommand}" Content="Save Settings" />
+      </UniformGrid>
+
+      <Grid Grid.Row="2" Margin="0,20,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Header="Devices" Margin="0,0,12,0">
+          <StackPanel Margin="12">
+            <TextBlock FontWeight="SemiBold" Text="{Binding MainCameraName, StringFormat=Main Camera: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding PipCameraName, StringFormat=PiP Camera: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding MidiDeviceName, StringFormat=MIDI: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding RoutingMode, StringFormat=Routing: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding PianoBankName, StringFormat=Piano Bank: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding VirtualCameraState, StringFormat=Virtual Camera: {0}}" />
+            <TextBlock Margin="0,6,0,0" Text="{Binding VirtualAudioState, StringFormat=Virtual Audio: {0}}" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualCameraPath, StringFormat=Camera Feed: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualCameraBridgePath, StringFormat=Camera Bridge: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualCameraManifestPath, StringFormat=Camera Manifest: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding CaptureSessionManifestPath, StringFormat=Capture Session: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualAudioPath, StringFormat=Audio Feed: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualAudioBridgePath, StringFormat=Audio Bridge: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding VirtualAudioManifestPath, StringFormat=Audio Manifest: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding RuntimeDirectory, StringFormat=Artifacts: {0}}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,6,0,0" Foreground="Gray" Text="{Binding PlatformError, StringFormat=Platform: {0}}" TextWrapping="Wrap" />
+          </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Column="1" Header="Setup Flow" Margin="12,0,0,0">
+          <ListBox Margin="12" ItemsSource="{Binding SetupChecklist}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Margin="0,0,0,10">
+                  <TextBlock FontWeight="SemiBold" Text="{Binding Step}" />
+                  <TextBlock Foreground="Gray" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding IsComplete, StringFormat=Complete: {0}}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </GroupBox>
+      </Grid>
+
+      <Grid Grid.Row="3" Margin="0,20,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Header="Public Output" Margin="0,0,12,0">
+          <ListBox Margin="12" ItemsSource="{Binding PublicLayers}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Kind}" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </GroupBox>
+
+        <GroupBox Grid.Column="1" Header="Studio Monitor" Margin="12,0">
+          <ListBox Margin="12" ItemsSource="{Binding StudioLayers}" />
+        </GroupBox>
+
+        <GroupBox Grid.Column="2" Header="Diagnostics" Margin="12,0,0,0">
+          <ListBox Margin="12" ItemsSource="{Binding DiagnosticIssues}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Margin="0,0,0,10">
+                  <TextBlock FontWeight="SemiBold" Text="{Binding Message}" TextWrapping="Wrap" />
+                  <TextBlock Foreground="Gray" Text="{Binding RecoverySuggestion}" TextWrapping="Wrap" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </GroupBox>
+      </Grid>
+    </Grid>
+  </ScrollViewer>
+</Window>

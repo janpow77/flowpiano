@@ -1,0 +1,296 @@
+name: FlowPiano
+options:
+  createIntermediateGroups: true
+  minimumXcodeGenVersion: 2.38.0
+configs:
+  Debug: debug
+  Release: release
+  SignedRelease: release
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+    MACOSX_DEPLOYMENT_TARGET: 13.0
+    PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano
+    CODE_SIGN_STYLE: Automatic
+targets:
+  App:
+    type: application
+    platform: macOS
+    productName: FlowPianoApp
+    deploymentTarget: "13.0"
+    info:
+      path: Config/App-Info.plist
+    entitlements:
+      path: Config/FlowPianoApp.entitlements
+    sources:
+      - Sources/App
+    dependencies:
+      - target: FlowPianoCore
+      - target: AudioEngine
+      - target: MIDIEngine
+      - target: VideoEngine
+      - target: Diagnostics
+      - target: LayoutEngine
+      - target: Persistence
+      - target: Settings
+      - target: StudioMonitor
+      - target: VirtualAudioDriver
+      - target: VirtualCameraExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano
+        INFOPLIST_FILE: Config/App-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/FlowPianoApp.entitlements
+    scheme:
+      gatherCoverageData: true
+
+  VideoEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/VideoEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.VideoEngine
+
+  AudioEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/AudioEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.AudioEngine
+
+  MIDIEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/MIDIEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.MIDIEngine
+
+  NotationEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/NotationEngine
+    dependencies:
+      - target: MIDIEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.NotationEngine
+
+  OverlayEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/OverlayEngine
+    dependencies:
+      - target: LayoutEngine
+      - target: MIDIEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.OverlayEngine
+
+  LayoutEngine:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/LayoutEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.LayoutEngine
+
+  StudioMonitor:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/StudioMonitor
+    dependencies:
+      - target: AudioEngine
+      - target: Diagnostics
+      - target: LayoutEngine
+      - target: MIDIEngine
+      - target: NotationEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.StudioMonitor
+
+  Persistence:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/Persistence
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.Persistence
+
+  Settings:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/Settings
+    dependencies:
+      - target: LayoutEngine
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.Settings
+
+  Diagnostics:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/Diagnostics
+    dependencies:
+      - target: AudioEngine
+      - target: LayoutEngine
+      - target: MIDIEngine
+      - target: VideoEngine
+      - target: VirtualAudioDriver
+      - target: VirtualCameraExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.Diagnostics
+
+  VirtualCameraExtension:
+    type: system-extension
+    platform: macOS
+    deploymentTarget: "13.0"
+    info:
+      path: Config/VirtualCamera-Info.plist
+    entitlements:
+      path: Config/FlowPianoVirtualCameraExtension.entitlements
+    sources:
+      - Sources/VirtualCameraExtension
+    dependencies:
+      - target: LayoutEngine
+      - target: VideoEngine
+      - target: FlowPianoCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.VirtualCameraExtension
+        INFOPLIST_FILE: Config/VirtualCamera-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/FlowPianoVirtualCameraExtension.entitlements
+
+  VirtualAudioDriver:
+    type: system-extension
+    platform: macOS
+    deploymentTarget: "13.0"
+    info:
+      path: Config/VirtualAudio-Info.plist
+    entitlements:
+      path: Config/FlowPianoVirtualAudioDriver.entitlements
+    sources:
+      - Sources/VirtualAudioDriver
+    dependencies:
+      - target: AudioEngine
+      - target: FlowPianoCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.VirtualAudioDriver
+        INFOPLIST_FILE: Config/VirtualAudio-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/FlowPianoVirtualAudioDriver.entitlements
+
+  FlowPianoCore:
+    type: framework
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Sources/FlowPianoCore
+    dependencies:
+      - target: AudioEngine
+      - target: Diagnostics
+      - target: LayoutEngine
+      - target: MIDIEngine
+      - target: NotationEngine
+      - target: OverlayEngine
+      - target: Persistence
+      - target: Settings
+      - target: StudioMonitor
+      - target: VideoEngine
+      - target: VirtualAudioDriver
+      - target: VirtualCameraExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FlowPiano.FlowPianoCore
+
+  FlowPianoUnitTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Tests/Unit
+    dependencies:
+      - target: AudioEngine
+      - target: FlowPianoCore
+      - target: LayoutEngine
+      - target: MIDIEngine
+      - target: Persistence
+      - target: Settings
+      - target: VideoEngine
+      - target: VirtualAudioDriver
+      - target: VirtualCameraExtension
+
+  FlowPianoIntegrationTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Tests/Integration
+    dependencies:
+      - target: AudioEngine
+      - target: FlowPianoCore
+      - target: LayoutEngine
+      - target: MIDIEngine
+      - target: Persistence
+      - target: Settings
+      - target: VideoEngine
+      - target: VirtualAudioDriver
+      - target: VirtualCameraExtension
+
+  FlowPianoUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - Tests/UI
+    dependencies:
+      - target: App
+      - target: FlowPianoCore
+
+schemes:
+  FlowPiano-App:
+    build:
+      targets:
+        App: all
+        VirtualCameraExtension: all
+        VirtualAudioDriver: all
+    test:
+      targets:
+        - FlowPianoUnitTests
+        - FlowPianoIntegrationTests
+        - FlowPianoUITests
+  FlowPiano-UnitTests:
+    test:
+      targets:
+        - FlowPianoUnitTests
+  FlowPiano-IntegrationTests:
+    test:
+      targets:
+        - FlowPianoIntegrationTests
+  FlowPiano-UITests:
+    test:
+      targets:
+        - FlowPianoUITests
