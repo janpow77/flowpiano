@@ -44,7 +44,7 @@ let package = Package(
             path: "Sources/StudioMonitor"
         ),
         .target(name: "Persistence", path: "Sources/Persistence"),
-        .target(name: "Settings", path: "Sources/Settings"),
+        .target(name: "Settings", dependencies: ["LayoutEngine"], path: "Sources/Settings"),
         .target(
             name: "Diagnostics",
             dependencies: ["AudioEngine", "LayoutEngine", "MIDIEngine", "VideoEngine", "VirtualAudioDriver", "VirtualCameraExtension"],
@@ -87,7 +87,8 @@ let package = Package(
                 "VirtualAudioDriver",
                 "VirtualCameraExtension"
             ],
-            path: "Tests/Unit"
+            path: "Tests/Unit",
+            exclude: ["TargetSeparationChecklist.md"]
         ),
         .testTarget(
             name: "FlowPianoIntegrationTests",
@@ -96,7 +97,7 @@ let package = Package(
         ),
         .testTarget(
             name: "FlowPianoUITests",
-            dependencies: ["App", "FlowPianoCore"],
+            dependencies: ["App", "FlowPianoCore", "Persistence"],
             path: "Tests/UI"
         )
     ]
