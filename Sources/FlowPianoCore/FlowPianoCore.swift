@@ -150,7 +150,6 @@ public final class FlowPianoSessionCoordinator {
         self.virtualAudio = virtualAudio
 
         self.settings = (try? settingsStore.load(AppSettings.self, forKey: settingsKey)) ?? AppSettings()
-        applySettingsToEngines()
         self.snapshot = FlowPianoRuntimeSnapshot(
             settings: self.settings,
             permissions: permissions,
@@ -168,6 +167,7 @@ public final class FlowPianoSessionCoordinator {
             publicSceneViolations: [],
             estimatedLatencyMilliseconds: 0
         )
+        applySettingsToEngines()
         refreshSnapshot()
     }
 
