@@ -46,12 +46,13 @@ public enum LayerKind: String, Codable, CaseIterable {
     case midiEventLog
     case latencyIndicator
     case diagnostics
+    case harmonyTrainer
 
     public var isPublicSafe: Bool {
         switch self {
         case .mainCamera, .pipCamera, .midiOverlay:
             return true
-        case .musicStaff, .audioMeters, .midiEventLog, .latencyIndicator, .diagnostics:
+        case .musicStaff, .audioMeters, .midiEventLog, .latencyIndicator, .diagnostics, .harmonyTrainer:
             return false
         }
     }
@@ -111,6 +112,10 @@ public struct LayoutConfiguration: Equatable, Codable {
             LayoutLayer(kind: .diagnostics,
                         frame: .init(x: 60, y: 40, width: 700, height: 180),
                         zIndex: 40,
+                        visibility: .init(publicVisible: false, studioVisible: true)),
+            LayoutLayer(kind: .harmonyTrainer,
+                        frame: .init(x: 60, y: 240, width: 1200, height: 440),
+                        zIndex: 50,
                         visibility: .init(publicVisible: false, studioVisible: true)),
         ]
     )

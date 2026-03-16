@@ -1,4 +1,5 @@
 import Foundation
+import HarmonyTrainer
 import LayoutEngine
 
 public enum AudioRoutingPreference: String, Codable {
@@ -67,19 +68,22 @@ public struct StudioMonitorSettings: Equatable, Codable {
     public var metersEnabled: Bool
     public var eventLogEnabled: Bool
     public var latencyIndicatorEnabled: Bool
+    public var harmonyTrainerEnabled: Bool
 
     public init(
         notationEnabled: Bool = true,
         diagnosticsEnabled: Bool = true,
         metersEnabled: Bool = true,
         eventLogEnabled: Bool = true,
-        latencyIndicatorEnabled: Bool = true
+        latencyIndicatorEnabled: Bool = true,
+        harmonyTrainerEnabled: Bool = false
     ) {
         self.notationEnabled = notationEnabled
         self.diagnosticsEnabled = diagnosticsEnabled
         self.metersEnabled = metersEnabled
         self.eventLogEnabled = eventLogEnabled
         self.latencyIndicatorEnabled = latencyIndicatorEnabled
+        self.harmonyTrainerEnabled = harmonyTrainerEnabled
     }
 }
 
@@ -101,6 +105,7 @@ public struct AppSettings: Equatable, Codable {
     public var overlay: OverlaySettings
     public var studioMonitor: StudioMonitorSettings
     public var virtualDevices: VirtualDeviceSettings
+    public var harmonyTrainer: HarmonyTrainerSettings
 
     public init(
         layout: LayoutConfiguration = .default,
@@ -109,7 +114,8 @@ public struct AppSettings: Equatable, Codable {
         midi: MIDISettings = MIDISettings(),
         overlay: OverlaySettings = OverlaySettings(),
         studioMonitor: StudioMonitorSettings = StudioMonitorSettings(),
-        virtualDevices: VirtualDeviceSettings = VirtualDeviceSettings()
+        virtualDevices: VirtualDeviceSettings = VirtualDeviceSettings(),
+        harmonyTrainer: HarmonyTrainerSettings = HarmonyTrainerSettings()
     ) {
         self.layout = layout
         self.video = video
@@ -118,5 +124,6 @@ public struct AppSettings: Equatable, Codable {
         self.overlay = overlay
         self.studioMonitor = studioMonitor
         self.virtualDevices = virtualDevices
+        self.harmonyTrainer = harmonyTrainer
     }
 }

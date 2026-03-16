@@ -17,6 +17,7 @@ let package = Package(
                 "AudioEngine",
                 "Diagnostics",
                 "FlowPianoCore",
+                "HarmonyTrainer",
                 "LayoutEngine",
                 "MIDIEngine",
                 "Persistence",
@@ -37,15 +38,16 @@ let package = Package(
         ),
         .target(name: "MIDIEngine", path: "Sources/MIDIEngine"),
         .target(name: "NotationEngine", dependencies: ["MIDIEngine"], path: "Sources/NotationEngine"),
+        .target(name: "HarmonyTrainer", dependencies: ["MIDIEngine"], path: "Sources/HarmonyTrainer"),
         .target(name: "OverlayEngine", dependencies: ["LayoutEngine", "MIDIEngine"], path: "Sources/OverlayEngine"),
         .target(name: "LayoutEngine", path: "Sources/LayoutEngine"),
         .target(
             name: "StudioMonitor",
-            dependencies: ["AudioEngine", "Diagnostics", "LayoutEngine", "MIDIEngine", "NotationEngine"],
+            dependencies: ["AudioEngine", "Diagnostics", "HarmonyTrainer", "LayoutEngine", "MIDIEngine", "NotationEngine"],
             path: "Sources/StudioMonitor"
         ),
         .target(name: "Persistence", path: "Sources/Persistence"),
-        .target(name: "Settings", dependencies: ["LayoutEngine"], path: "Sources/Settings"),
+        .target(name: "Settings", dependencies: ["HarmonyTrainer", "LayoutEngine"], path: "Sources/Settings"),
         .target(
             name: "Diagnostics",
             dependencies: ["AudioEngine", "LayoutEngine", "MIDIEngine", "VideoEngine", "VirtualAudioDriver", "VirtualCameraExtension"],
@@ -58,6 +60,7 @@ let package = Package(
             dependencies: [
                 "AudioEngine",
                 "Diagnostics",
+                "HarmonyTrainer",
                 "LayoutEngine",
                 "MIDIEngine",
                 "NotationEngine",
@@ -77,6 +80,7 @@ let package = Package(
                 "AudioEngine",
                 "Diagnostics",
                 "FlowPianoCore",
+                "HarmonyTrainer",
                 "LayoutEngine",
                 "MIDIEngine",
                 "NotationEngine",
@@ -93,7 +97,7 @@ let package = Package(
         ),
         .testTarget(
             name: "FlowPianoIntegrationTests",
-            dependencies: ["AudioEngine", "FlowPianoCore", "LayoutEngine", "MIDIEngine", "Persistence", "Settings", "StudioMonitor", "VideoEngine", "VirtualAudioDriver", "VirtualCameraExtension"],
+            dependencies: ["AudioEngine", "FlowPianoCore", "HarmonyTrainer", "LayoutEngine", "MIDIEngine", "Persistence", "Settings", "StudioMonitor", "VideoEngine", "VirtualAudioDriver", "VirtualCameraExtension"],
             path: "Tests/Integration"
         ),
         .testTarget(

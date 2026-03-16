@@ -1,6 +1,7 @@
 import AudioEngine
 import Diagnostics
 import Foundation
+import HarmonyTrainer
 import LayoutEngine
 import MIDIEngine
 import NotationEngine
@@ -76,6 +77,7 @@ public struct FlowPianoRuntimeSnapshot: Equatable, Codable {
     public var setupChecklist: [SetupChecklistItem]
     public var publicSceneViolations: [LayerKind]
     public var estimatedLatencyMilliseconds: Double
+    public var harmonyTrainer: HarmonyTrainerState
 
     public init(
         settings: AppSettings,
@@ -92,7 +94,8 @@ public struct FlowPianoRuntimeSnapshot: Equatable, Codable {
         virtualAudio: VirtualAudioDriverStatus,
         setupChecklist: [SetupChecklistItem],
         publicSceneViolations: [LayerKind],
-        estimatedLatencyMilliseconds: Double
+        estimatedLatencyMilliseconds: Double,
+        harmonyTrainer: HarmonyTrainerState = HarmonyTrainerState()
     ) {
         self.settings = settings
         self.permissions = permissions
@@ -109,6 +112,7 @@ public struct FlowPianoRuntimeSnapshot: Equatable, Codable {
         self.setupChecklist = setupChecklist
         self.publicSceneViolations = publicSceneViolations
         self.estimatedLatencyMilliseconds = estimatedLatencyMilliseconds
+        self.harmonyTrainer = harmonyTrainer
     }
 }
 
@@ -123,6 +127,7 @@ public final class FlowPianoSessionCoordinator {
     private let overlayEngine: OverlayEngine
     private let virtualCamera: VirtualCameraExtension
     private let virtualAudio: VirtualAudioDriver
+    private let harmonyTrainerEngine: HarmonyTrainer
 
     private var settings: AppSettings
     private var permissions = PermissionState()
@@ -138,7 +143,8 @@ public final class FlowPianoSessionCoordinator {
         notationEngine: NotationEngine = NotationEngine(),
         overlayEngine: OverlayEngine = OverlayEngine(),
         virtualCamera: VirtualCameraExtension = VirtualCameraExtension(),
-        virtualAudio: VirtualAudioDriver = VirtualAudioDriver()
+        virtualAudio: VirtualAudioDriver = VirtualAudioDriver(),
+        harmonyTrainer: HarmonyTrainer = HarmonyTrainer()
     ) {
         self.settingsStore = settingsStore
         self.videoEngine = videoEngine
@@ -148,6 +154,7 @@ public final class FlowPianoSessionCoordinator {
         self.overlayEngine = overlayEngine
         self.virtualCamera = virtualCamera
         self.virtualAudio = virtualAudio
+        self.harmonyTrainerEngine = harmonyTrainer
 
         self.settings = (try? settingsStore.load(AppSettings.self, forKey: settingsKey)) ?? AppSettings()
         self.snapshot = FlowPianoRuntimeSnapshot(
@@ -248,6 +255,7 @@ public final class FlowPianoSessionCoordinator {
         try midiEngine.receive(event)
         audioEngine.process(event)
         notationEngine.consume(event)
+        harmonyTrainerEngine.consume(event)
         overlayEngine.update(from: midiEngine.state)
         publishOutputsIfPossible()
         refreshSnapshot()
@@ -313,6 +321,45 @@ public final class FlowPianoSessionCoordinator {
         refreshSnapshot()
     }
 
+    // MARK: - Harmony Trainer
+
+    public func setHarmonyTrainerEnabled(_ enabled: Bool) {
+        harmonyTrainerEngine.setEnabled(enabled)
+        settings.harmonyTrainer.isEnabled = enabled
+        studioMonitorState.harmonyTrainerEnabled = enabled
+        persistSettingsIfPossible()
+        refreshSnapshot()
+    }
+
+    public func setHarmonyTrainerKey(_ key: PitchClass) {
+        harmonyTrainerEngine.setKey(key)
+        settings.harmonyTrainer.selectedKey = key
+        persistSettingsIfPossible()
+        refreshSnapshot()
+    }
+
+    public func setHarmonyTrainerScaleType(_ scaleType: ScaleType) {
+        harmonyTrainerEngine.setScaleType(scaleType)
+        settings.harmonyTrainer.selectedScaleType = scaleType
+        persistSettingsIfPossible()
+        refreshSnapshot()
+    }
+
+    public func startHarmonyExercise(mode: ExerciseMode, progression: ProgressionTemplate? = nil) {
+        harmonyTrainerEngine.startExercise(mode: mode, progression: progression)
+        refreshSnapshot()
+    }
+
+    public func advanceHarmonyExercise() {
+        harmonyTrainerEngine.advanceExercise()
+        refreshSnapshot()
+    }
+
+    public func resetHarmonyExercise() {
+        harmonyTrainerEngine.resetExercise()
+        refreshSnapshot()
+    }
+
     public func setStudioMonitorState(_ state: StudioMonitorState) {
         studioMonitorState = state
         settings.studioMonitor = StudioMonitorSettings(
@@ -320,7 +367,8 @@ public final class FlowPianoSessionCoordinator {
             diagnosticsEnabled: state.diagnosticsEnabled,
             metersEnabled: state.metersEnabled,
             eventLogEnabled: state.eventLogEnabled,
-            latencyIndicatorEnabled: state.latencyIndicatorEnabled
+            latencyIndicatorEnabled: state.latencyIndicatorEnabled,
+            harmonyTrainerEnabled: state.harmonyTrainerEnabled
         )
         persistSettingsIfPossible()
         refreshSnapshot()
@@ -380,8 +428,13 @@ public final class FlowPianoSessionCoordinator {
             diagnosticsEnabled: settings.studioMonitor.diagnosticsEnabled,
             metersEnabled: settings.studioMonitor.metersEnabled,
             eventLogEnabled: settings.studioMonitor.eventLogEnabled,
-            latencyIndicatorEnabled: settings.studioMonitor.latencyIndicatorEnabled
+            latencyIndicatorEnabled: settings.studioMonitor.latencyIndicatorEnabled,
+            harmonyTrainerEnabled: settings.studioMonitor.harmonyTrainerEnabled
         )
+        harmonyTrainerEngine.setEnabled(settings.harmonyTrainer.isEnabled)
+        harmonyTrainerEngine.setKey(settings.harmonyTrainer.selectedKey)
+        harmonyTrainerEngine.setScaleType(settings.harmonyTrainer.selectedScaleType)
+        harmonyTrainerEngine.setAcceptInversions(settings.harmonyTrainer.acceptInversions)
         syncOverlayFrameFromLayout()
     }
 
@@ -418,7 +471,8 @@ public final class FlowPianoSessionCoordinator {
             audio: audioEngine.state,
             midi: midiEngine.state,
             diagnostics: diagnostics,
-            latencyMilliseconds: estimatedLatencyMilliseconds
+            latencyMilliseconds: estimatedLatencyMilliseconds,
+            harmonyTrainer: harmonyTrainerEngine.state
         )
 
         snapshot = FlowPianoRuntimeSnapshot(
@@ -436,7 +490,8 @@ public final class FlowPianoSessionCoordinator {
             virtualAudio: virtualAudio.status,
             setupChecklist: checklistWithoutDiagnostics,
             publicSceneViolations: publicSceneViolations,
-            estimatedLatencyMilliseconds: estimatedLatencyMilliseconds
+            estimatedLatencyMilliseconds: estimatedLatencyMilliseconds,
+            harmonyTrainer: harmonyTrainerEngine.state
         )
     }
 
@@ -558,6 +613,8 @@ public final class FlowPianoSessionCoordinator {
                     updated.visibility.studioVisible = studioMonitorState.latencyIndicatorEnabled
                 case .diagnostics:
                     updated.visibility.studioVisible = studioMonitorState.diagnosticsEnabled
+                case .harmonyTrainer:
+                    updated.visibility.studioVisible = studioMonitorState.harmonyTrainerEnabled
                 }
 
                 return updated
