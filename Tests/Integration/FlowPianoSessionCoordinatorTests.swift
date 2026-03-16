@@ -4,6 +4,7 @@ import LayoutEngine
 import MIDIEngine
 import Persistence
 import Settings
+import StudioMonitor
 
 final class FlowPianoSessionCoordinatorTests: XCTestCase {
     func testCoordinatorPublishesOnlyPublicSafeLayers() throws {

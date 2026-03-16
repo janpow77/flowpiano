@@ -120,7 +120,7 @@ final class FlowPianoPlatformBridge {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.refreshHardwareSnapshot()
+            Task { @MainActor in self?.refreshHardwareSnapshot() }
         }
 
         cameraDisconnectedObserver = NotificationCenter.default.addObserver(
@@ -128,7 +128,7 @@ final class FlowPianoPlatformBridge {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.refreshHardwareSnapshot()
+            Task { @MainActor in self?.refreshHardwareSnapshot() }
         }
         #endif
     }
