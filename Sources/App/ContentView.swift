@@ -1,5 +1,6 @@
 import Diagnostics
 import FlowPianoCore
+import HarmonyTrainer
 import LayoutEngine
 import SwiftUI
 
@@ -24,6 +25,7 @@ struct ContentView: View {
                     setupChecklist
                     configurationRow
                     controlsRow
+                    harmonyTrainerSection
                     outputsRow
                     diagnosticsRow
                 }
@@ -262,8 +264,46 @@ struct ContentView: View {
                     get: { model.snapshot.settings.studioMonitor.latencyIndicatorEnabled },
                     set: { model.setStudioLatencyEnabled($0) }
                 ))
+                Toggle("Harmony Trainer", isOn: Binding(
+                    get: { model.snapshot.harmonyTrainer.isEnabled },
+                    set: { model.setHarmonyTrainerEnabled($0) }
+                ))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var harmonyTrainerSection: some View {
+        GroupBox("Harmony Trainer") {
+            if model.snapshot.harmonyTrainer.isEnabled {
+                HarmonyTrainerView(
+                    state: model.snapshot.harmonyTrainer,
+                    onSetKey: { model.setHarmonyTrainerKey($0) },
+                    onSetScaleType: { model.setHarmonyTrainerScaleType($0) },
+                    onSetMode: { model.setHarmonyExerciseMode($0) },
+                    onSelectProgression: { model.startHarmonyProgression($0) },
+                    onAdvance: { model.advanceHarmonyExercise() },
+                    onReset: { model.resetHarmonyExercise() }
+                )
+            } else {
+                VStack(spacing: 12) {
+                    Image(systemName: "music.note.list")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text("Harmony Trainer ist deaktiviert")
+                        .foregroundStyle(.secondary)
+                    Text("Aktiviere ihn im Studio Monitor Panel, um Akkorde, Stufen und Progressionen zu trainieren.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button("Aktivieren") {
+                        model.setHarmonyTrainerEnabled(true)
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+            }
         }
     }
 

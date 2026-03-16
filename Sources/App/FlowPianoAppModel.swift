@@ -1,6 +1,7 @@
 import AudioEngine
 import FlowPianoCore
 import Foundation
+import HarmonyTrainer
 import MIDIEngine
 import Persistence
 import Settings
@@ -176,6 +177,45 @@ final class FlowPianoAppModel: ObservableObject {
         snapshot = coordinator.snapshot
     }
 
+    // MARK: - Harmony Trainer
+
+    func setHarmonyTrainerEnabled(_ enabled: Bool) {
+        coordinator.setHarmonyTrainerEnabled(enabled)
+        var studioSettings = snapshot.settings.studioMonitor
+        studioSettings.harmonyTrainerEnabled = enabled
+        applyStudioMonitorSettings(studioSettings)
+    }
+
+    func setHarmonyTrainerKey(_ key: PitchClass) {
+        coordinator.setHarmonyTrainerKey(key)
+        refresh()
+    }
+
+    func setHarmonyTrainerScaleType(_ scaleType: ScaleType) {
+        coordinator.setHarmonyTrainerScaleType(scaleType)
+        refresh()
+    }
+
+    func setHarmonyExerciseMode(_ mode: ExerciseMode) {
+        coordinator.startHarmonyExercise(mode: mode)
+        refresh()
+    }
+
+    func startHarmonyProgression(_ template: ProgressionTemplate) {
+        coordinator.startHarmonyExercise(mode: .progressionGuide, progression: template)
+        refresh()
+    }
+
+    func advanceHarmonyExercise() {
+        coordinator.advanceHarmonyExercise()
+        refresh()
+    }
+
+    func resetHarmonyExercise() {
+        coordinator.resetHarmonyExercise()
+        refresh()
+    }
+
     private func applyStudioMonitorSettings(_ settings: StudioMonitorSettings) {
         coordinator.setStudioMonitorState(
             StudioMonitorState(
@@ -183,7 +223,8 @@ final class FlowPianoAppModel: ObservableObject {
                 diagnosticsEnabled: settings.diagnosticsEnabled,
                 metersEnabled: settings.metersEnabled,
                 eventLogEnabled: settings.eventLogEnabled,
-                latencyIndicatorEnabled: settings.latencyIndicatorEnabled
+                latencyIndicatorEnabled: settings.latencyIndicatorEnabled,
+                harmonyTrainerEnabled: settings.harmonyTrainerEnabled
             )
         )
         refresh()
