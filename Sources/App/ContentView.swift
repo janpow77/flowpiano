@@ -445,6 +445,8 @@ struct ContentView: View {
             return "Latency Indicator"
         case .diagnostics:
             return "Diagnostics"
+        case .harmonyTrainer:
+            return "Harmony Trainer"
         }
     }
 
