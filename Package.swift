@@ -21,6 +21,7 @@ let package = Package(
                 "MIDIEngine",
                 "Persistence",
                 "Settings",
+                "StudioMonitor",
                 "VideoEngine"
             ],
             path: "Sources/App"

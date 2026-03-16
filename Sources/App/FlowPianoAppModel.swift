@@ -4,6 +4,7 @@ import Foundation
 import MIDIEngine
 import Persistence
 import Settings
+import StudioMonitor
 import SwiftUI
 
 @MainActor

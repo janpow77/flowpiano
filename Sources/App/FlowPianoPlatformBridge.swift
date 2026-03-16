@@ -77,7 +77,12 @@ final class FlowPianoPlatformBridge {
 
     private func refreshVideoDevices() {
         #if os(macOS) && canImport(AVFoundation)
-        let devices = AVCaptureDevice.devices(for: .video).map { device in
+        let discoverySession = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .externalUnknown],
+            mediaType: .video,
+            position: .unspecified
+        )
+        let devices = discoverySession.devices.map { device in
             CameraDevice(
                 id: device.uniqueID,
                 name: device.localizedName,
@@ -87,12 +92,15 @@ final class FlowPianoPlatformBridge {
             )
         }
 
-        let supportsMultiCam = AVCaptureMultiCamSession.isMultiCamSupported
+        // macOS does not support AVCaptureMultiCamSession; use multiple inputs
+        // on a single AVCaptureSession instead. Report multi-cam as supported
+        // when more than one camera is discovered.
+        let hasMultipleCameras = devices.count >= 2
         coordinator.updateAvailableCameras(
             devices,
             capabilities: VideoCapabilities(
-                supportsMultiCam: supportsMultiCam,
-                maxActiveCameras: supportsMultiCam ? 2 : 1
+                supportsMultiCam: hasMultipleCameras,
+                maxActiveCameras: hasMultipleCameras ? 2 : 1
             )
         )
         #endif
