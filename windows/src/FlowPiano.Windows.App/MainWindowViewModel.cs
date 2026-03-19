@@ -73,6 +73,51 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged, IDisposable
             _coordinator.SaveSettings();
             Refresh();
         });
+        ToggleHarmonyTrainerCommand = new RelayCommand(() =>
+        {
+            _coordinator.SetHarmonyTrainerEnabled(!_coordinator.Snapshot.HarmonyTrainer.IsEnabled);
+            Refresh();
+        });
+        SetFreePlayCommand = new RelayCommand(() =>
+        {
+            _coordinator.StartHarmonyExercise(ExerciseMode.FreePlay);
+            Refresh();
+        });
+        SetChordPromptCommand = new RelayCommand(() =>
+        {
+            _coordinator.StartHarmonyExercise(ExerciseMode.ChordPrompt);
+            Refresh();
+        });
+        SetScalePracticeCommand = new RelayCommand(() =>
+        {
+            _coordinator.StartHarmonyExercise(ExerciseMode.ScalePractice);
+            Refresh();
+        });
+        AdvanceExerciseCommand = new RelayCommand(() =>
+        {
+            _coordinator.AdvanceHarmonyExercise();
+            Refresh();
+        });
+        ResetExerciseCommand = new RelayCommand(() =>
+        {
+            _coordinator.ResetHarmonyExercise();
+            Refresh();
+        });
+        SelectProgressionCommand = new RelayCommand<ProgressionTemplate>(prog =>
+        {
+            _coordinator.StartHarmonyExercise(ExerciseMode.ProgressionGuide, prog);
+            Refresh();
+        });
+        SetKeyCommand = new RelayCommand<PitchClass>(key =>
+        {
+            _coordinator.SetHarmonyTrainerKey(key);
+            Refresh();
+        });
+        ToggleMajorMinorCommand = new RelayCommand(() =>
+        {
+            _coordinator.SetHarmonyTrainerScaleType(IsMajorMode ? ScaleType.NaturalMinor : ScaleType.Major);
+            Refresh();
+        });
 
         Refresh();
     }
@@ -104,6 +149,52 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     public IReadOnlyList<RenderedLayer> PublicLayers => Snapshot.PublicScene.Layers;
     public IReadOnlyList<LayerKind> StudioLayers => Snapshot.StudioMonitor.VisibleLayers;
 
+    // HarmonyTrainer
+    public HarmonyTrainerState HarmonyTrainer => Snapshot.HarmonyTrainer;
+    public bool IsHarmonyTrainerEnabled => HarmonyTrainer.IsEnabled;
+    public string DetectedChordName => HarmonyTrainer.DetectedChord?.GermanDisplayName ?? "";
+    public string AnalysisLabel => HarmonyTrainer.DiatonicAnalysisResult is { } a ? $"{a.RomanNumeral} ({a.FunctionLabel})" : "";
+    public string AnalysisRomanNumeral => HarmonyTrainer.DiatonicAnalysisResult?.RomanNumeral ?? "";
+    public string AnalysisFunctionName => HarmonyTrainer.DiatonicAnalysisResult?.HarmonicFunction.GetGermanName() ?? "";
+    public string AnalysisFunctionLabel => HarmonyTrainer.DiatonicAnalysisResult?.FunctionLabel ?? "";
+    public int? HighlightedDegree => HarmonyTrainer.DiatonicAnalysisResult?.Degree;
+    public Inversion DetectedInversion => HarmonyTrainer.DetectedChord?.Inversion ?? Inversion.Root;
+    public bool HasInversion => HarmonyTrainer.DetectedChord is { Inversion: not Inversion.Root };
+    public bool HasDetectedChord => HarmonyTrainer.DetectedChord is not null;
+    public bool IsNonDiatonic => HarmonyTrainer.DetectedChord is not null && HarmonyTrainer.DiatonicAnalysisResult is null;
+    public string ExerciseInstruction => HarmonyTrainer.Exercise.CurrentPrompt?.Instruction ?? "";
+    public ExerciseResult CurrentExerciseResult => HarmonyTrainer.Exercise.Result;
+    public string ExerciseResultText => HarmonyTrainer.Exercise.Result switch
+    {
+        ExerciseResult.Correct => "Korrekt!",
+        ExerciseResult.Incorrect => "Falsch - versuche es nochmal",
+        ExerciseResult.Partial => "Teilweise richtig...",
+        ExerciseResult.Waiting => "Warte auf Eingabe...",
+        _ => ""
+    };
+    public bool ShowAdvanceButton => HarmonyTrainer.Exercise.Result == ExerciseResult.Correct
+        && HarmonyTrainer.Exercise.Mode != ExerciseMode.FreePlay;
+    public bool IsFreePlayMode => HarmonyTrainer.Exercise.Mode == ExerciseMode.FreePlay;
+    public bool IsChordPromptMode => HarmonyTrainer.Exercise.Mode == ExerciseMode.ChordPrompt;
+    public bool IsScalePracticeMode => HarmonyTrainer.Exercise.Mode == ExerciseMode.ScalePractice;
+    public bool IsProgressionMode => HarmonyTrainer.Exercise.Mode == ExerciseMode.ProgressionGuide;
+    public bool ShowStats => HarmonyTrainer.Exercise.Mode != ExerciseMode.FreePlay;
+    public int ExerciseStreak => HarmonyTrainer.Exercise.Streak;
+    public int ExerciseCompleted => HarmonyTrainer.Exercise.CompletedCount;
+    public string ExerciseProgress => HarmonyTrainer.Exercise.TotalSteps > 0
+        ? $"{HarmonyTrainer.Exercise.ProgressionIndex + 1}/{HarmonyTrainer.Exercise.TotalSteps}"
+        : "";
+    public IReadOnlyList<DiatonicChord> DiatonicChords => HarmonyTrainer.DiatonicChordsList;
+    public PitchClass SelectedKey => HarmonyTrainer.SelectedKey;
+    public string SelectedKeyGerman => HarmonyTrainer.SelectedKey.GetGermanName();
+    public bool IsMajorMode => HarmonyTrainer.SelectedScaleType == ScaleType.Major;
+    public IReadOnlyList<PitchClass> AllPitchClasses => PitchClassExtensions.AllCases;
+    public IReadOnlyList<ProgressionTemplate> AvailableProgressions => IsMajorMode
+        ? ProgressionTemplate.AllMajor
+        : ProgressionTemplate.AllMinor;
+    public ProgressionTemplate? ActiveProgression => HarmonyTrainer.Exercise.ProgressionTemplate;
+    public string ActiveProgressionName => ActiveProgression?.Name ?? "";
+
     public ICommand PlayPhraseCommand { get; }
     public ICommand RefreshHardwareCommand { get; }
     public ICommand SwapCamerasCommand { get; }
@@ -111,6 +202,15 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged, IDisposable
     public ICommand CycleRoutingCommand { get; }
     public ICommand ToggleVirtualDevicesCommand { get; }
     public ICommand SaveSettingsCommand { get; }
+    public ICommand ToggleHarmonyTrainerCommand { get; }
+    public ICommand SetFreePlayCommand { get; }
+    public ICommand SetChordPromptCommand { get; }
+    public ICommand SetScalePracticeCommand { get; }
+    public ICommand AdvanceExerciseCommand { get; }
+    public ICommand ResetExerciseCommand { get; }
+    public ICommand SelectProgressionCommand { get; }
+    public ICommand SetKeyCommand { get; }
+    public ICommand ToggleMajorMinorCommand { get; }
 
     public void Dispose()
     {
@@ -171,6 +271,37 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged, IDisposable
         OnPropertyChanged(nameof(DiagnosticIssues));
         OnPropertyChanged(nameof(PublicLayers));
         OnPropertyChanged(nameof(StudioLayers));
+        OnPropertyChanged(nameof(HarmonyTrainer));
+        OnPropertyChanged(nameof(IsHarmonyTrainerEnabled));
+        OnPropertyChanged(nameof(DetectedChordName));
+        OnPropertyChanged(nameof(AnalysisLabel));
+        OnPropertyChanged(nameof(AnalysisRomanNumeral));
+        OnPropertyChanged(nameof(AnalysisFunctionName));
+        OnPropertyChanged(nameof(AnalysisFunctionLabel));
+        OnPropertyChanged(nameof(HighlightedDegree));
+        OnPropertyChanged(nameof(DetectedInversion));
+        OnPropertyChanged(nameof(HasInversion));
+        OnPropertyChanged(nameof(HasDetectedChord));
+        OnPropertyChanged(nameof(IsNonDiatonic));
+        OnPropertyChanged(nameof(ExerciseInstruction));
+        OnPropertyChanged(nameof(CurrentExerciseResult));
+        OnPropertyChanged(nameof(ExerciseResultText));
+        OnPropertyChanged(nameof(ShowAdvanceButton));
+        OnPropertyChanged(nameof(IsFreePlayMode));
+        OnPropertyChanged(nameof(IsChordPromptMode));
+        OnPropertyChanged(nameof(IsScalePracticeMode));
+        OnPropertyChanged(nameof(IsProgressionMode));
+        OnPropertyChanged(nameof(ShowStats));
+        OnPropertyChanged(nameof(ExerciseStreak));
+        OnPropertyChanged(nameof(ExerciseCompleted));
+        OnPropertyChanged(nameof(ExerciseProgress));
+        OnPropertyChanged(nameof(DiatonicChords));
+        OnPropertyChanged(nameof(SelectedKey));
+        OnPropertyChanged(nameof(SelectedKeyGerman));
+        OnPropertyChanged(nameof(IsMajorMode));
+        OnPropertyChanged(nameof(AvailableProgressions));
+        OnPropertyChanged(nameof(ActiveProgression));
+        OnPropertyChanged(nameof(ActiveProgressionName));
     }
 
     private void InstallPreviewVideoProfile()

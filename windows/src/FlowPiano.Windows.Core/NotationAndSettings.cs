@@ -91,7 +91,7 @@ public sealed record VideoSettings(string? PreferredMainCameraId = null, string?
 public sealed record AudioSettings(bool UseInternalPiano = true, AudioRoutingPreference RoutingPreference = AudioRoutingPreference.InternalOnly, double PianoGain = 0.9, double SpeechGain = 0.8, double ExternalInstrumentGain = 0.7);
 public sealed record MidiSettings(string? PreferredInputDeviceId = null, bool AutoReconnect = true);
 public sealed record OverlaySettings(bool IsVisible = true, bool ShowLabels = true);
-public sealed record StudioMonitorSettings(bool NotationEnabled = true, bool DiagnosticsEnabled = true, bool MetersEnabled = true, bool EventLogEnabled = true, bool LatencyIndicatorEnabled = true);
+public sealed record StudioMonitorSettings(bool NotationEnabled = true, bool DiagnosticsEnabled = true, bool MetersEnabled = true, bool EventLogEnabled = true, bool LatencyIndicatorEnabled = true, bool HarmonyTrainerEnabled = false);
 public sealed record VirtualDeviceSettings(bool AutoPublishCamera = true, bool AutoPublishMicrophone = true);
 
 public sealed record AppSettings(
@@ -101,7 +101,8 @@ public sealed record AppSettings(
     MidiSettings Midi,
     OverlaySettings Overlay,
     StudioMonitorSettings StudioMonitor,
-    VirtualDeviceSettings VirtualDevices
+    VirtualDeviceSettings VirtualDevices,
+    HarmonyTrainerSettings HarmonyTrainer
 )
 {
     public static AppSettings Default { get; } = new(
@@ -111,7 +112,8 @@ public sealed record AppSettings(
         new MidiSettings(),
         new OverlaySettings(),
         new StudioMonitorSettings(),
-        new VirtualDeviceSettings()
+        new VirtualDeviceSettings(),
+        new HarmonyTrainerSettings()
     );
 }
 

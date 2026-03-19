@@ -16,6 +16,7 @@
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
         <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
       <Border Padding="20" CornerRadius="16" Background="#112B39">
@@ -121,6 +122,261 @@
           </ListBox>
         </GroupBox>
       </Grid>
+
+      <!-- HarmonyTrainer Panel -->
+      <Border Grid.Row="4" Margin="0,20,0,0" CornerRadius="12" Background="#141414">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <!-- HEADER BAR -->
+          <Border Grid.Row="0" Padding="16,10" CornerRadius="12,12,0,0" Background="#1E1E1E">
+            <WrapPanel VerticalAlignment="Center">
+              <!-- Enable toggle -->
+              <Button Margin="0,0,12,0" Padding="10,6" Command="{Binding ToggleHarmonyTrainerCommand}"
+                      FontWeight="SemiBold">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Content" Value="HarmonyTrainer" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsHarmonyTrainerEnabled}" Value="True">
+                        <Setter Property="Background" Value="#1E8E5A" />
+                        <Setter Property="Foreground" Value="White" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+
+              <!-- Key selector -->
+              <TextBlock VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#999" FontSize="11" Text="Tonart" />
+              <ComboBox Margin="0,0,12,0" MinWidth="70"
+                        ItemsSource="{Binding AllPitchClasses}"
+                        SelectedItem="{Binding SelectedKey, Mode=OneWay}"
+                        SelectionChanged="OnKeySelectionChanged">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource PitchClassToGerman}}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+
+              <!-- Dur/Moll toggle -->
+              <TextBlock VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#999" FontSize="11" Text="Modus" />
+              <Button Margin="0,0,4,0" Padding="10,5" Command="{Binding ToggleMajorMinorCommand}"
+                      FontWeight="SemiBold" FontSize="12">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Content" Value="Moll" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsMajorMode}" Value="True">
+                        <Setter Property="Content" Value="Dur" />
+                        <Setter Property="Background" Value="#2A5DA8" />
+                        <Setter Property="Foreground" Value="White" />
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding IsMajorMode}" Value="False">
+                        <Setter Property="Content" Value="Moll" />
+                        <Setter Property="Background" Value="#6B3FA0" />
+                        <Setter Property="Foreground" Value="White" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+
+              <Border Margin="12,0" Width="1" Height="20" Background="#333" />
+
+              <!-- Mode buttons -->
+              <Button Margin="0,0,4,0" Padding="10,5" Command="{Binding SetFreePlayCommand}" FontSize="12">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Content" Value="Frei" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsFreePlayMode}" Value="True">
+                        <Setter Property="Background" Value="#334466" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+              <Button Margin="0,0,4,0" Padding="10,5" Command="{Binding SetChordPromptCommand}" FontSize="12">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Content" Value="Akkord" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsChordPromptMode}" Value="True">
+                        <Setter Property="Background" Value="#334466" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+
+              <!-- Progression dropdown -->
+              <ComboBox Margin="0,0,4,0" MinWidth="140"
+                        ItemsSource="{Binding AvailableProgressions}"
+                        DisplayMemberPath="Name"
+                        SelectedItem="{Binding ActiveProgression, Mode=OneWay}"
+                        SelectionChanged="OnProgressionSelectionChanged" />
+
+              <Button Margin="0,0,12,0" Padding="10,5" Command="{Binding SetScalePracticeCommand}" FontSize="12">
+                <Button.Style>
+                  <Style TargetType="Button">
+                    <Setter Property="Content" Value="Tonleiter" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsScalePracticeMode}" Value="True">
+                        <Setter Property="Background" Value="#334466" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+              </Button>
+
+              <!-- Spacer -->
+              <Border Width="1" />
+
+              <!-- Stats pills -->
+              <StackPanel Orientation="Horizontal" Margin="8,0,0,0"
+                          Visibility="{Binding ShowStats, Converter={StaticResource BoolToVisibility}}">
+                <Border Margin="0,0,6,0" Padding="8,3" CornerRadius="10" Background="#33FF8800">
+                  <TextBlock Foreground="#FF8800" FontSize="11" FontWeight="SemiBold">
+                    <Run Text="&#x1F525;" /><Run Text=" " /><Run Text="{Binding ExerciseStreak, Mode=OneWay}" />
+                  </TextBlock>
+                </Border>
+                <Border Margin="0,0,6,0" Padding="8,3" CornerRadius="10" Background="#332ECC71">
+                  <TextBlock Foreground="#2ECC71" FontSize="11" FontWeight="SemiBold">
+                    <Run Text="&#x2713;" /><Run Text=" " /><Run Text="{Binding ExerciseCompleted, Mode=OneWay}" />
+                  </TextBlock>
+                </Border>
+                <Border Padding="8,3" CornerRadius="10" Background="#3300BDD4"
+                        Visibility="{Binding ExerciseProgress, Converter={StaticResource StringNotEmptyToVisibility}}">
+                  <TextBlock Foreground="#00BDD4" FontSize="11" FontWeight="SemiBold" Text="{Binding ExerciseProgress}" />
+                </Border>
+              </StackPanel>
+
+              <!-- Reset -->
+              <Button Margin="8,0,0,0" Padding="8,5" Command="{Binding ResetExerciseCommand}" Content="&#x21BA;" FontSize="14" ToolTip="Reset" />
+            </WrapPanel>
+          </Border>
+
+          <!-- DIATONIC OVERVIEW / DEGREE BAR -->
+          <ItemsControl Grid.Row="1" Margin="16,12" ItemsSource="{Binding DiatonicChords}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="7" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Margin="3" Padding="8,10" CornerRadius="10"
+                        Background="{Binding Degree, Converter={StaticResource DegreeToColor}, ConverterParameter=0.35}">
+                  <StackPanel HorizontalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="White" Text="{Binding RomanNumeral}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="10" Foreground="#BBDDEEEE" Text="{Binding Converter={StaticResource DiatonicChordDisplay}}" />
+                    <TextBlock HorizontalAlignment="Center" FontSize="9" Foreground="#88FFFFFF" Text="{Binding FunctionLabel}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <!-- CHORD FEEDBACK -->
+          <Border Grid.Row="2" Padding="16,12" Background="#111111">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="180" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+
+              <!-- Detected chord -->
+              <StackPanel Grid.Column="0">
+                <!-- Chord name + inversion -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding HasDetectedChord, Converter={StaticResource BoolToVisibility}}">
+                  <TextBlock FontSize="28" FontWeight="Bold" Foreground="White" FontFamily="Segoe UI"
+                             Text="{Binding DetectedChordName}" />
+                  <Border Margin="8,0,0,0" Padding="6,2" CornerRadius="8" Background="#22FFFFFF" VerticalAlignment="Center"
+                          Visibility="{Binding HasInversion, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock FontSize="11" Foreground="#CCCCCC"
+                               Text="{Binding DetectedInversion, Converter={StaticResource InversionToLabel}}" />
+                  </Border>
+                </StackPanel>
+                <!-- No chord placeholder -->
+                <TextBlock FontSize="28" FontWeight="Bold" Foreground="#555" Text="--"
+                           Visibility="{Binding HasDetectedChord, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+
+                <!-- Roman numeral + function -->
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0"
+                            Visibility="{Binding AnalysisRomanNumeral, Converter={StaticResource StringNotEmptyToVisibility}}">
+                  <TextBlock FontSize="18" FontWeight="Bold"
+                             Foreground="{Binding HighlightedDegree, Converter={StaticResource DegreeToColor}}"
+                             Text="{Binding AnalysisRomanNumeral}" />
+                  <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="#3399DB"
+                             Text="{Binding AnalysisFunctionName}" />
+                  <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="11" Foreground="#777"
+                             Text="{Binding AnalysisFunctionLabel, StringFormat=({0})}" />
+                </StackPanel>
+                <!-- Non-diatonic label -->
+                <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="#FF8800" Text="Nicht-diatonisch"
+                           Visibility="{Binding IsNonDiatonic, Converter={StaticResource BoolToVisibility}}" />
+              </StackPanel>
+
+              <!-- Divider -->
+              <Border Grid.Column="1" Margin="16,4" Width="1" Background="#333" />
+
+              <!-- Exercise prompt + result -->
+              <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <!-- Free play info -->
+                <StackPanel Visibility="{Binding IsFreePlayMode, Converter={StaticResource BoolToVisibility}}">
+                  <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#CCCCCC" Text="Freies Spielen" />
+                  <TextBlock FontSize="11" Foreground="#777" Text="Akkorde werden automatisch erkannt" />
+                </StackPanel>
+                <!-- Exercise prompt -->
+                <StackPanel Visibility="{Binding ExerciseInstruction, Converter={StaticResource StringNotEmptyToVisibility}}">
+                  <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="White" Text="{Binding ExerciseInstruction}" TextWrapping="Wrap" />
+                  <TextBlock Margin="0,6,0,0" FontSize="13" FontWeight="Bold"
+                             Foreground="{Binding CurrentExerciseResult, Converter={StaticResource ResultToColor}}"
+                             Text="{Binding ExerciseResultText}" />
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Advance button -->
+              <Button Grid.Column="3" Margin="12,0,0,0" Padding="16,8" FontSize="14" FontWeight="SemiBold"
+                      Background="#2ECC71" Foreground="White" Command="{Binding AdvanceExerciseCommand}" Content="Weiter &#x2192;"
+                      Visibility="{Binding ShowAdvanceButton, Converter={StaticResource BoolToVisibility}}" />
+            </Grid>
+          </Border>
+
+          <!-- BOTTOM DEGREE BAR (compact, with function colors) -->
+          <Border Grid.Row="3" Padding="16,10" CornerRadius="0,0,12,12" Background="#0D0D0D">
+            <ItemsControl ItemsSource="{Binding DiatonicChords}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Columns="7" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Margin="3" Padding="6,6" CornerRadius="8"
+                          Background="{Binding Degree, Converter={StaticResource DegreeToColor}, ConverterParameter=0.15}">
+                    <StackPanel HorizontalAlignment="Center">
+                      <TextBlock HorizontalAlignment="Center" FontSize="9" FontWeight="Medium" Foreground="#AAAAAA" Text="{Binding FunctionLabel}" />
+                      <TextBlock HorizontalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="White" Text="{Binding RomanNumeral}" />
+                      <TextBlock HorizontalAlignment="Center" FontSize="10" Foreground="#88FFFFFF"
+                                 Text="{Binding Root, Converter={StaticResource PitchClassToGerman}}" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+        </Grid>
+      </Border>
     </Grid>
   </ScrollViewer>
 </Window>

@@ -36,7 +36,8 @@ public enum LayerKind
     AudioMeters,
     MidiEventLog,
     LatencyIndicator,
-    Diagnostics
+    Diagnostics,
+    HarmonyTrainer
 }
 
 public sealed record LayoutLayer(LayerKind Kind, LayerFrame Frame, int ZIndex, LayerVisibilityPolicy Visibility);
@@ -55,7 +56,8 @@ public sealed record LayoutConfiguration(IReadOnlyList<LayoutLayer> Layers)
         new LayoutLayer(LayerKind.AudioMeters, new LayerFrame(1280, 320, 580, 90), 31, new LayerVisibilityPolicy(false, true)),
         new LayoutLayer(LayerKind.MidiEventLog, new LayerFrame(1280, 430, 580, 150), 32, new LayerVisibilityPolicy(false, true)),
         new LayoutLayer(LayerKind.LatencyIndicator, new LayerFrame(1280, 600, 300, 60), 33, new LayerVisibilityPolicy(false, true)),
-        new LayoutLayer(LayerKind.Diagnostics, new LayerFrame(60, 40, 700, 180), 40, new LayerVisibilityPolicy(false, true))
+        new LayoutLayer(LayerKind.Diagnostics, new LayerFrame(60, 40, 700, 180), 40, new LayerVisibilityPolicy(false, true)),
+        new LayoutLayer(LayerKind.HarmonyTrainer, new LayerFrame(60, 240, 1200, 440), 50, new LayerVisibilityPolicy(false, true))
     ]);
 }
 
@@ -119,6 +121,7 @@ public static class LayoutEngine
     }
 
     public static bool IsPublicSafe(LayerKind kind) => kind is LayerKind.MainCamera or LayerKind.PipCamera or LayerKind.MidiOverlay;
+    // HarmonyTrainer is studio-only and NOT public-safe.
 
     private static LayoutConfiguration UpdateFrame(LayoutConfiguration configuration, LayerKind kind, Func<LayerFrame, LayerFrame> update) =>
         new(

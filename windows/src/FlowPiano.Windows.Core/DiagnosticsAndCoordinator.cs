@@ -72,7 +72,7 @@ public sealed record VirtualAudioDriverStatus(bool IsInstalled = false, bool IsP
 
 public sealed record VirtualMicrophoneFeed(IReadOnlyList<int> ActiveNotes, AudioMeterState Meters);
 
-public sealed record StudioMonitorState(bool NotationEnabled = true, bool DiagnosticsEnabled = true, bool MetersEnabled = true, bool EventLogEnabled = true, bool LatencyIndicatorEnabled = true);
+public sealed record StudioMonitorState(bool NotationEnabled = true, bool DiagnosticsEnabled = true, bool MetersEnabled = true, bool EventLogEnabled = true, bool LatencyIndicatorEnabled = true, bool HarmonyTrainerEnabled = false);
 
 public sealed record StudioMonitorSnapshot(
     IReadOnlyList<LayerKind> VisibleLayers,
@@ -80,7 +80,8 @@ public sealed record StudioMonitorSnapshot(
     AudioMeterState? AudioMeters,
     IReadOnlyList<MidiEventLogEntry> MidiLog,
     DiagnosticsReport? Diagnostics,
-    double? LatencyMilliseconds
+    double? LatencyMilliseconds,
+    HarmonyTrainerState? HarmonyTrainer = null
 );
 
 public sealed record FlowPianoRuntimeSnapshot(
@@ -98,7 +99,8 @@ public sealed record FlowPianoRuntimeSnapshot(
     VirtualAudioDriverStatus VirtualAudio,
     IReadOnlyList<SetupChecklistItem> SetupChecklist,
     IReadOnlyList<LayerKind> PublicSceneViolations,
-    double EstimatedLatencyMilliseconds
+    double EstimatedLatencyMilliseconds,
+    HarmonyTrainerState HarmonyTrainer
 );
 
 public static class DiagnosticsEngine
@@ -186,6 +188,7 @@ public sealed class FlowPianoSessionCoordinator
     private readonly AudioEngine _audioEngine;
     private readonly NotationEngine _notationEngine;
     private readonly OverlayEngine _overlayEngine;
+    private readonly HarmonyTrainerEngine _harmonyTrainerEngine;
 
     private AppSettings _settings;
     private PermissionState _permissions = new();
@@ -204,6 +207,7 @@ public sealed class FlowPianoSessionCoordinator
         _notationEngine = new NotationEngine();
         _overlayEngine = new OverlayEngine();
         _settings = _settingsStore.Load<AppSettings>(SettingsKey) ?? AppSettings.Default;
+        _harmonyTrainerEngine = new HarmonyTrainerEngine(_settings.HarmonyTrainer);
 
         ApplySettingsToEngines();
         Snapshot = new FlowPianoRuntimeSnapshot(
@@ -221,7 +225,8 @@ public sealed class FlowPianoSessionCoordinator
             _virtualAudio,
             [],
             [],
-            0
+            0,
+            _harmonyTrainerEngine.State
         );
 
         RefreshSnapshot();
@@ -350,6 +355,7 @@ public sealed class FlowPianoSessionCoordinator
         _midiEngine.Receive(midiEvent);
         _audioEngine.Process(midiEvent);
         _notationEngine.Consume(midiEvent);
+        _harmonyTrainerEngine.Consume(midiEvent);
         _overlayEngine.Update(_midiEngine.State);
         PublishOutputsIfPossible();
         RefreshSnapshot();
@@ -434,9 +440,52 @@ public sealed class FlowPianoSessionCoordinator
         _studioMonitorState = state;
         _settings = _settings with
         {
-            StudioMonitor = new StudioMonitorSettings(state.NotationEnabled, state.DiagnosticsEnabled, state.MetersEnabled, state.EventLogEnabled, state.LatencyIndicatorEnabled)
+            StudioMonitor = new StudioMonitorSettings(state.NotationEnabled, state.DiagnosticsEnabled, state.MetersEnabled, state.EventLogEnabled, state.LatencyIndicatorEnabled, state.HarmonyTrainerEnabled)
         };
         PersistSettings();
+        RefreshSnapshot();
+    }
+
+    public void SetHarmonyTrainerEnabled(bool enabled)
+    {
+        _harmonyTrainerEngine.SetEnabled(enabled);
+        _studioMonitorState = _studioMonitorState with { HarmonyTrainerEnabled = enabled };
+        _settings = _settings with { HarmonyTrainer = _settings.HarmonyTrainer with { IsEnabled = enabled } };
+        PersistSettings();
+        RefreshSnapshot();
+    }
+
+    public void SetHarmonyTrainerKey(PitchClass key)
+    {
+        _harmonyTrainerEngine.SetKey(key);
+        _settings = _settings with { HarmonyTrainer = _settings.HarmonyTrainer with { SelectedKey = key } };
+        PersistSettings();
+        RefreshSnapshot();
+    }
+
+    public void SetHarmonyTrainerScaleType(ScaleType scaleType)
+    {
+        _harmonyTrainerEngine.SetScaleType(scaleType);
+        _settings = _settings with { HarmonyTrainer = _settings.HarmonyTrainer with { SelectedScaleType = scaleType } };
+        PersistSettings();
+        RefreshSnapshot();
+    }
+
+    public void StartHarmonyExercise(ExerciseMode mode, ProgressionTemplate? progression = null)
+    {
+        _harmonyTrainerEngine.StartExercise(mode, progression);
+        RefreshSnapshot();
+    }
+
+    public void AdvanceHarmonyExercise()
+    {
+        _harmonyTrainerEngine.AdvanceExercise();
+        RefreshSnapshot();
+    }
+
+    public void ResetHarmonyExercise()
+    {
+        _harmonyTrainerEngine.ResetExercise();
         RefreshSnapshot();
     }
 
@@ -498,8 +547,13 @@ public sealed class FlowPianoSessionCoordinator
             _settings.StudioMonitor.DiagnosticsEnabled,
             _settings.StudioMonitor.MetersEnabled,
             _settings.StudioMonitor.EventLogEnabled,
-            _settings.StudioMonitor.LatencyIndicatorEnabled
+            _settings.StudioMonitor.LatencyIndicatorEnabled,
+            _settings.StudioMonitor.HarmonyTrainerEnabled
         );
+        _harmonyTrainerEngine.SetEnabled(_settings.HarmonyTrainer.IsEnabled);
+        _harmonyTrainerEngine.SetKey(_settings.HarmonyTrainer.SelectedKey);
+        _harmonyTrainerEngine.SetScaleType(_settings.HarmonyTrainer.ResolvedScaleType);
+        _harmonyTrainerEngine.SetAcceptInversions(_settings.HarmonyTrainer.AcceptInversions);
         SyncOverlayFrameFromLayout();
     }
 
@@ -532,7 +586,8 @@ public sealed class FlowPianoSessionCoordinator
             _virtualAudio,
             checklist,
             publicSceneViolations,
-            estimatedLatency
+            estimatedLatency,
+            _harmonyTrainerEngine.State
         );
     }
 
@@ -547,6 +602,7 @@ public sealed class FlowPianoSessionCoordinator
                     LayerKind.MidiEventLog => _studioMonitorState.EventLogEnabled,
                     LayerKind.LatencyIndicator => _studioMonitorState.LatencyIndicatorEnabled,
                     LayerKind.Diagnostics => _studioMonitorState.DiagnosticsEnabled,
+                    LayerKind.HarmonyTrainer => _studioMonitorState.HarmonyTrainerEnabled,
                     _ => true
                 })
                 .ToArray(),
@@ -554,7 +610,8 @@ public sealed class FlowPianoSessionCoordinator
             _studioMonitorState.MetersEnabled ? _audioEngine.State.Meters : null,
             _studioMonitorState.EventLogEnabled ? _midiEngine.State.EventLog.ToArray() : Array.Empty<MidiEventLogEntry>(),
             _studioMonitorState.DiagnosticsEnabled ? diagnostics : null,
-            _studioMonitorState.LatencyIndicatorEnabled ? latency : null
+            _studioMonitorState.LatencyIndicatorEnabled ? latency : null,
+            _studioMonitorState.HarmonyTrainerEnabled ? _harmonyTrainerEngine.State : null
         );
 
     private IReadOnlyList<SetupChecklistItem> BuildSetupChecklist(LayoutConfiguration resolvedLayout)
@@ -592,6 +649,7 @@ public sealed class FlowPianoSessionCoordinator
                         LayerKind.MidiEventLog => layer with { Visibility = layer.Visibility with { StudioVisible = _studioMonitorState.EventLogEnabled } },
                         LayerKind.LatencyIndicator => layer with { Visibility = layer.Visibility with { StudioVisible = _studioMonitorState.LatencyIndicatorEnabled } },
                         LayerKind.Diagnostics => layer with { Visibility = layer.Visibility with { StudioVisible = _studioMonitorState.DiagnosticsEnabled } },
+                        LayerKind.HarmonyTrainer => layer with { Visibility = layer.Visibility with { StudioVisible = _studioMonitorState.HarmonyTrainerEnabled } },
                         _ => layer
                     };
                 })
