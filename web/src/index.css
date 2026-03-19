@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --degree-1: #E84D3D;
+  --degree-2: #D4B038;
+  --degree-3: #A8D65C;
+  --degree-4: #26AD61;
+  --degree-5: #00BDD4;
+  --degree-6: #3399DB;
+  --degree-7: #9C59B5;
+
+  --fn-tonic: #3399DB;
+  --fn-subdominant: #26AD61;
+  --fn-dominant: #E8943D;
+}
+
+body {
+  margin: 0;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
