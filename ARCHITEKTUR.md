@@ -15,14 +15,14 @@ _Automatisch generiert von graphify-kira aus dem Code-Graphen. Nicht von Hand ed
 - **Layout Engine** (49): `FlowPianoCore.swift`, `LayoutEngine.swift`, `VirtualCameraExtensionTests.swift`
 - **Chord Qualities** (48): `diatonicAnalysis.test.ts`, `progression.test.ts`, `ProgressionSelector.tsx`, `chordQuality.ts`, `chordType.ts`
 - **Session Timer** (46): `App.tsx`, `ProgressionSelector.tsx`, `SessionTimer.tsx`, `StatsDisplay.tsx`, `ChordFeedback.tsx`
-- **Music Theory** (45): `Hashable`, `MusicTheory.swift`, `Int`
-- **Video Engine** (43): `CaseIterable`, `VideoEngine.swift`
-- **Harmony Trainer Tests** (42): `ContentView.swift`, `FlowPianoAppModel.swift`, `FlowPianoCore.swift`, `HarmonyTrainerTests.swift`
-- **Error Diagnostics** (42): `Diagnostics.swift`
-- **Harmony Trainer Tests** (39): `HarmonyTrainerTests.cs`
-- **Platform Bridge** (38): `FlowPianoPlatformBridge.swift`
-- **Project Dependencies** (37): `package.json`
-- **Windows Integration** (37): `WindowsIntegrationPlan.cs`
+- **Video Engine** (44): `MusicTheory.swift`, `Int`
+- **Harmony Trainer Tests** (43): `CaseIterable`, `VideoEngine.swift`
+- **Error Diagnostics** (42): `ContentView.swift`, `FlowPianoAppModel.swift`, `FlowPianoCore.swift`, `HarmonyTrainerTests.swift`
+- **Harmony Trainer Tests** (42): `Diagnostics.swift`
+- **Platform Bridge** (39): `HarmonyTrainerTests.cs`
+- **Windows Integration** (38): `FlowPianoPlatformBridge.swift`
+- **Music Theory** (37): `package.json`
+- **Project Dependencies** (37): `WindowsIntegrationPlan.cs`
 - **Audio Engine** (35): `AudioEngine.swift`
 - **Windows Runtime Host** (35): `FlowPianoWindowsRuntimeHost.cs`
 - **MIDI Interop** (33): `WinMmInterop.cs`
@@ -58,6 +58,12 @@ _Hohe Zentralität ist nicht automatisch ein Defekt (zentrale Stores/Modelle sin
 ## Zirkuläre Abhängigkeiten
 
 Es gibt **2** nicht-triviale Zyklen (starke Zusammenhangskomponenten) — Kandidaten zum Auflösen (Dependency-Inversion).
+
+## Empfohlene Spezialisten
+
+Passend zu Stack/Domäne dieses Projekts (Claude-Code-Agents/Skills):
+
+`/deutsche-formulierung`, `@git-workflow`, `/auto-verify`, `@e2e-browser-tester`, `/modern-gui-builder`, `/ux-completeness-check`.
 
 ## Hinweis für Änderungen
 
