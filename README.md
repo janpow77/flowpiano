@@ -1,6 +1,7 @@
 # FlowPiano
 
 [![FlowPiano CI](https://github.com/janpow77/flowpiano/actions/workflows/ci.yml/badge.svg)](https://github.com/janpow77/flowpiano/actions/workflows/ci.yml)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-green)](LICENSE)
 
 **macOS-Anwendung für Klavierunterricht und Klavierspiel in Videokonferenzen: Gesichts- und Tastaturkamera, MIDI-Overlay, interner Klavierklang und Sprachmikrofon werden zu einer virtuellen Kamera und einem virtuellen Mikrofon zusammengeführt.** Notation, Pegel und Diagnose sieht nur die spielende Person im lokalen Studio-Monitor.
 
@@ -176,5 +177,4 @@ Der Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) läuft nur m
 
 ## Lizenz
 
-<!-- TODO: Für den Quellcode liegt keine LICENSE-Datei vor; Lizenz festlegen. -->
-Für den Quellcode ist derzeit keine Lizenz hinterlegt. Die mitgelieferte Klangbank GeneralUser GS steht unter eigener Lizenz ([GeneralUserGS-LICENSE.txt](Sources/AudioEngine/Resources/GeneralUserGS-LICENSE.txt)).
+Der Quellcode steht unter der [MIT-Lizenz](LICENSE), Copyright (c) 2026 Jan Riener. Die mitgelieferte Klangbank GeneralUser GS steht unter eigener Lizenz ([GeneralUserGS-LICENSE.txt](Sources/AudioEngine/Resources/GeneralUserGS-LICENSE.txt)).
